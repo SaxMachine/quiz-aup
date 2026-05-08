@@ -951,6 +951,7 @@ function updateTimerDisplay() {
 
 // ══ RENDER DOMANDA ══
 function renderQuestion() {
+  pendingAnswer = null; // reset selezione in attesa
   const q = questions[currentIdx];
   const total = questions.length;
   const answered = answers.filter(a => a !== undefined && a !== null).length;
@@ -1005,7 +1006,7 @@ function renderQuestion() {
         btn.classList.add('correct-hint');
       }
     } else {
-      btn.onclick = () => selectAnswer(origIdx, btn);
+      btn.onclick = () => preSelectAnswer(origIdx);
     }
 
     answersEl.appendChild(btn);
@@ -1023,12 +1024,15 @@ function renderQuestion() {
   btnPrev.style.display = (mode === 'studio' && currentIdx > 0) ? 'block' : 'none';
 
   const isAnswered = existing !== undefined && existing !== null;
-  btnNext.disabled = !isAnswered;
+  // Bottone abilitato se: già risposto OPPURE c'è una selezione pending
+  btnNext.disabled = !isAnswered && pendingAnswer === null;
 
   if (currentIdx === total - 1) {
     btnNext.textContent = '📊 Vedi risultati';
+  } else if (!isAnswered && pendingAnswer === null && mode === 'studio') {
+    btnNext.textContent = 'Salta →';
   } else {
-    btnNext.textContent = mode === 'studio' && !isAnswered ? 'Salta →' : 'Avanti →';
+    btnNext.textContent = 'Avanti →';
   }
 
   document.getElementById('quiz-body').scrollTop = 0;
@@ -1048,41 +1052,51 @@ function highlightCorrectInStudio() {
   });
 }
 
-function selectAnswer(origIdx, btn) {
+// origIdx selezionato ma non ancora confermato (null = nessuno)
+let pendingAnswer = null;
+
+function preSelectAnswer(origIdx) {
+  pendingAnswer = origIdx;
+
+  // Evidenzia solo la risposta cliccata, deseleziona le altre
+  document.querySelectorAll('.answer-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  const clicked = document.querySelector(`.answer-btn[data-orig="${origIdx}"]`);
+  if (clicked) clicked.classList.add('selected');
+
+  // Abilita il pulsante Avanti
+  const btnNext = document.getElementById('btn-next');
+  btnNext.disabled = false;
+  const isLast = currentIdx === questions.length - 1;
+  btnNext.textContent = isLast ? '\u{1F4CA} Vedi risultati' : 'Avanti \u2192';
+}
+
+// Chiamata da nextOrFinish: blocca la risposta e mostra il feedback
+function confirmAndShowFeedback() {
+  const origIdx = pendingAnswer;
   const q = questions[currentIdx];
   const scoreVal = q.s[origIdx];
 
   answers[currentIdx] = { chosenOrig: origIdx, score: scoreVal };
 
-  // Disabilita tutti i bottoni
+  // Blocca tutti i bottoni e applica il feedback colorato
   document.querySelectorAll('.answer-btn').forEach(b => {
     b.disabled = true;
     b.onclick = null;
     const bOrig = parseInt(b.dataset.orig);
-    const bScore = q.s[bOrig];
 
     if (bOrig === origIdx) {
-      // Risposta scelta
       b.classList.add('selected');
       if (scoreVal === 1) b.classList.add('correct');
       else if (scoreVal === 0.5) b.classList.add('partial');
       else b.classList.add('wrong');
     } else if (mode === 'studio' && bOrig === 0) {
-      // In studio, evidenzia la risposta corretta
       b.classList.add('correct');
     }
   });
 
-  // Abilita pulsante avanti
-  const btnNext = document.getElementById('btn-next');
-  btnNext.disabled = false;
-  if (currentIdx === questions.length - 1) {
-    btnNext.textContent = '📊 Vedi risultati';
-  } else {
-    btnNext.textContent = 'Avanti →';
-  }
-
-  // Live score
+  // Aggiorna punteggio live
   document.getElementById('score-live').textContent = calcScore().toFixed(1);
 }
 
@@ -1092,18 +1106,35 @@ function calcScore() {
 
 // ══ NAVIGAZIONE ══
 function nextOrFinish() {
+  // Se c'è una risposta selezionata ma non ancora confermata, confermala ora
+  if (pendingAnswer !== null) {
+    confirmAndShowFeedback();
+    pendingAnswer = null;
+    // Piccola pausa per far vedere il feedback prima di avanzare
+    setTimeout(() => {
+      if (currentIdx === questions.length - 1) {
+        finishQuiz();
+      } else {
+        currentIdx++;
+        renderQuestion();
+      }
+    }, 600);
+    return;
+  }
+
+  // Nessuna risposta selezionata: in studio salta, in simulazione blocca
   if (currentIdx === questions.length - 1) {
     finishQuiz();
     return;
   }
 
-  // In studio, se non risposto, salta (registra null)
-  if (answers[currentIdx] === undefined) {
-    answers[currentIdx] = null; // saltata
+  if (mode === 'studio') {
+    // Salta (registra null)
+    if (answers[currentIdx] === undefined) answers[currentIdx] = null;
+    currentIdx++;
+    renderQuestion();
   }
-
-  currentIdx++;
-  renderQuestion();
+  // In simulazione non si può avanzare senza rispondere (btn è disabled)
 }
 
 function prevQuestion() {
