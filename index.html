@@ -948,8 +948,7 @@ function startMode(m) {
   // Prepara ordine risposte shufflate per ogni domanda
   shuffledAnswers = questions.map(q => {
     const indices = [0, 1, 2];
-    if (m === 'simulazione') return fisherYates(indices);
-    return indices; // In studio, mantieni ordine originale (EFF, MED, NON)
+    return fisherYates(indices); // shuffle sempre, sia studio che simulazione
   });
 
   hideEl('home');
