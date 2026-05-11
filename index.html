@@ -1293,7 +1293,7 @@ function buildReview(filter) {
     const item = document.createElement('div');
     item.className = `review-item ${type}`;
 
-    const qNum = mode === 'studio' ? `Domanda ${q.n}` : `Domanda ${i + 1}`;
+    const qNum = mode === 'studio' ? `Domanda ${q.n} di 297` : `Domanda ${i + 1} di 30  ·  n° ${q.n}`;
     const chosenOrig = ans ? ans.chosenOrig : -1;
 
     // Costruisce le righe risposte
