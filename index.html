@@ -834,6 +834,262 @@
     .block-range { font-size: 9px; }
   }
 
+
+  /* ── SUDOKU ── */
+  #sudoku-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+  }
+
+  .sudoku-header {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .sudoku-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--text);
+  }
+
+  .sudoku-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .sudoku-timer {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--accent);
+    min-width: 50px;
+  }
+
+  .sudoku-diff-wrap {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .diff-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .diff-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(201,169,110,0.1);
+  }
+
+  :root.light .diff-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(92,122,78,0.1);
+  }
+
+  .sudoku-grid-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    border: 2px solid var(--text);
+    border-radius: 4px;
+    overflow: hidden;
+    width: min(360px, 92vw);
+    height: min(360px, 92vw);
+  }
+
+  .s-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(14px, 3.5vw, 20px);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: background 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+  }
+
+  /* Bordi spessi dei box 3x3 */
+  .s-cell:nth-child(3n) { border-right: 2px solid var(--text); }
+  .s-cell:nth-child(9n) { border-right: none; }
+  .s-cell.row3  { border-bottom: 2px solid var(--text); }
+  .s-cell.row6  { border-bottom: 2px solid var(--text); }
+  .s-cell.row9  { border-bottom: none; }
+
+  .s-cell.given {
+    color: var(--text);
+    background: var(--surface2);
+    cursor: default;
+  }
+
+  .s-cell.selected {
+    background: rgba(201,169,110,0.18) !important;
+  }
+
+  :root.light .s-cell.selected {
+    background: rgba(92,122,78,0.15) !important;
+  }
+
+  .s-cell.highlight {
+    background: rgba(201,169,110,0.07);
+  }
+
+  :root.light .s-cell.highlight {
+    background: rgba(92,122,78,0.08);
+  }
+
+  .s-cell.error {
+    color: var(--red) !important;
+  }
+
+  .s-cell.user-num {
+    color: var(--accent);
+  }
+
+  :root.light .s-cell.user-num {
+    color: var(--accent2);
+  }
+
+  .s-cell.complete-flash {
+    animation: cellFlash 0.4s ease;
+  }
+
+  @keyframes cellFlash {
+    0%,100% { background: var(--surface); }
+    50% { background: rgba(76,175,132,0.3); }
+  }
+
+  /* Numpad */
+  .sudoku-numpad {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 5px;
+    width: min(360px, 92vw);
+    margin-bottom: 14px;
+  }
+
+  .num-btn {
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .num-btn:hover, .num-btn:active {
+    border-color: var(--accent);
+    background: var(--surface2);
+    color: var(--accent);
+  }
+
+  .num-btn.erase {
+    font-size: clamp(10px, 2.5vw, 14px);
+    color: var(--muted);
+  }
+
+  .sudoku-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .sudoku-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .sudoku-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sudoku-btn.gold { background: var(--accent); color: #0f1117; border-color: var(--accent); }
+  .sudoku-btn.gold:hover { background: var(--accent2); }
+
+  .sudoku-win {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .sudoku-win.show { display: flex; }
+
+  .sudoku-win-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .sudoku-win-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .sudoku-win-time {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .errors-badge {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
   /* ── LOADING ── */
   #loading {
     display: flex;
@@ -904,6 +1160,49 @@
   <span class="theme-toggle-label" id="theme-label">CHIARO</span>
 </button>
 
+
+<!-- SUDOKU -->
+<div id="sudoku-screen" style="display:none" class="screen">
+  <div class="sudoku-header">
+    <button class="quit-btn" onclick="exitSudoku()">← Menu</button>
+    <div class="sudoku-title">Sudoku</div>
+    <div class="sudoku-meta">
+      <span id="s-errors" class="errors-badge">❌ 0</span>
+      <span class="sudoku-timer" id="s-timer">0:00</span>
+    </div>
+  </div>
+
+  <div class="sudoku-diff-wrap">
+    <button class="diff-btn active" id="diff-facile" onclick="setSudokuDiff('facile',this)">Facile</button>
+    <button class="diff-btn" id="diff-medio" onclick="setSudokuDiff('medio',this)">Medio</button>
+    <button class="diff-btn" id="diff-difficile" onclick="setSudokuDiff('difficile',this)">Difficile</button>
+  </div>
+
+  <div class="sudoku-grid-wrap">
+    <div class="sudoku-grid" id="sudoku-grid"></div>
+  </div>
+
+  <div class="sudoku-numpad" id="sudoku-numpad"></div>
+
+  <div class="sudoku-actions">
+    <button class="sudoku-btn" onclick="newSudoku()">🔄 Nuovo</button>
+    <button class="sudoku-btn" onclick="sudokuHint()">💡 Suggerimento</button>
+    <button class="sudoku-btn gold" onclick="sudokuSolve()">✓ Soluzione</button>
+  </div>
+
+  <!-- Win overlay -->
+  <div class="sudoku-win" id="sudoku-win">
+    <div class="sudoku-win-box">
+      <div class="sudoku-win-title">🎉 Risolto!</div>
+      <div class="sudoku-win-time" id="s-win-time"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="sudoku-btn gold" onclick="newSudoku();document.getElementById('sudoku-win').classList.remove('show')">Nuovo puzzle</button>
+        <button class="sudoku-btn" onclick="exitSudoku();document.getElementById('sudoku-win').classList.remove('show')">Esci</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- LOADING -->
 <div id="loading" class="screen">
   <div class="spinner"></div>
@@ -938,6 +1237,7 @@
   </div>
 
   <p class="home-info">Punteggi: EFFICACE = 1 pt · MEDIAMENTE EFFICACE = 0,5 pt · NON EFFICACE = 0 pt</p>
+  <button class="sudoku-btn" style="margin-top:20px;font-size:14px;padding:10px 24px" onclick="startSudoku()">🧩 Fai una pausa — Sudoku</button>
 </div>
 
 
@@ -1074,6 +1374,275 @@ function applyTheme(theme) {
     localStorage.setItem('quiz-theme', 'dark');
   }
 }
+
+
+
+// ══ SUDOKU ══
+let sBoard = [];        // board corrente (0 = vuoto)
+let sGiven = [];        // celle fisse
+let sSolution = [];     // soluzione completa
+let sSelected = -1;     // indice cella selezionata
+let sDiff = 'facile';   // difficoltà
+let sTimer = null;
+let sSeconds = 0;
+let sErrors = 0;
+
+const DIFF_REMOVE = { facile: 36, medio: 46, difficile: 54 };
+
+// Genera una griglia Sudoku valida con backtracking
+function generateSolution() {
+  const board = Array(81).fill(0);
+  fillBoard(board);
+  return board;
+}
+
+function fillBoard(board) {
+  const idx = board.indexOf(0);
+  if (idx === -1) return true;
+  const nums = shuffle([1,2,3,4,5,6,7,8,9]);
+  for (const n of nums) {
+    if (isValid(board, idx, n)) {
+      board[idx] = n;
+      if (fillBoard(board)) return true;
+      board[idx] = 0;
+    }
+  }
+  return false;
+}
+
+function isValid(board, idx, n) {
+  const row = Math.floor(idx / 9);
+  const col = idx % 9;
+  for (let i = 0; i < 9; i++) {
+    if (board[row * 9 + i] === n) return false;
+    if (board[i * 9 + col] === n) return false;
+    const br = Math.floor(row / 3) * 3 + Math.floor(i / 3);
+    const bc = Math.floor(col / 3) * 3 + (i % 3);
+    if (board[br * 9 + bc] === n) return false;
+  }
+  return true;
+}
+
+function countSolutions(board, limit = 2) {
+  const idx = board.indexOf(0);
+  if (idx === -1) return 1;
+  let count = 0;
+  for (let n = 1; n <= 9; n++) {
+    if (isValid(board, idx, n)) {
+      board[idx] = n;
+      count += countSolutions(board, limit);
+      board[idx] = 0;
+      if (count >= limit) return count;
+    }
+  }
+  return count;
+}
+
+function createPuzzle(solution, difficulty) {
+  const puzzle = [...solution];
+  const cells = shuffle([...Array(81).keys()]);
+  let removed = 0;
+  const target = DIFF_REMOVE[difficulty];
+  for (const idx of cells) {
+    if (removed >= target) break;
+    const val = puzzle[idx];
+    puzzle[idx] = 0;
+    // Verifica soluzione unica (solo per difficile, per velocità)
+    if (difficulty === 'difficile') {
+      const test = [...puzzle];
+      if (countSolutions(test) !== 1) {
+        puzzle[idx] = val;
+        continue;
+      }
+    }
+    removed++;
+  }
+  return puzzle;
+}
+
+function startSudoku() {
+  hideEl('home');
+  showEl('sudoku-screen');
+  newSudoku();
+}
+
+function exitSudoku() {
+  stopSudokuTimer();
+  hideEl('sudoku-screen');
+  showEl('home');
+}
+
+function setSudokuDiff(diff, btn) {
+  sDiff = diff;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  newSudoku();
+}
+
+function newSudoku() {
+  stopSudokuTimer();
+  sSeconds = 0;
+  sErrors = 0;
+  sSelected = -1;
+  updateSTimerDisplay();
+  document.getElementById('s-errors').textContent = '❌ 0';
+  document.getElementById('sudoku-win').classList.remove('show');
+
+  sSolution = generateSolution();
+  sBoard = createPuzzle([...sSolution], sDiff);
+  sGiven = sBoard.map(v => v !== 0);
+
+  renderSudoku();
+  startSudokuTimer();
+}
+
+function renderSudoku() {
+  const grid = document.getElementById('sudoku-grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 81; i++) {
+    const cell = document.createElement('div');
+    cell.className = 's-cell';
+    const row = Math.floor(i / 9) + 1;
+    if (row === 3) cell.classList.add('row3');
+    if (row === 6) cell.classList.add('row6');
+    if (row === 9) cell.classList.add('row9');
+
+    if (sGiven[i]) cell.classList.add('given');
+    if (sBoard[i] !== 0) {
+      cell.textContent = sBoard[i];
+      if (!sGiven[i]) cell.classList.add('user-num');
+    }
+    if (i === sSelected) cell.classList.add('selected');
+
+    // Highlight stessa riga/colonna/box
+    if (sSelected !== -1 && i !== sSelected) {
+      const sr = Math.floor(sSelected / 9), sc = sSelected % 9;
+      const cr = Math.floor(i / 9), cc = i % 9;
+      const sameBox = Math.floor(sr/3)===Math.floor(cr/3) && Math.floor(sc/3)===Math.floor(cc/3);
+      if (cr === sr || cc === sc || sameBox) cell.classList.add('highlight');
+    }
+
+    // Errore
+    if (!sGiven[i] && sBoard[i] !== 0 && sBoard[i] !== sSolution[i]) {
+      cell.classList.add('error');
+    }
+
+    cell.addEventListener('click', () => selectSCell(i));
+    grid.appendChild(cell);
+  }
+
+  // Numpad
+  const numpad = document.getElementById('sudoku-numpad');
+  numpad.innerHTML = '';
+  for (let n = 1; n <= 9; n++) {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn';
+    btn.textContent = n;
+    btn.addEventListener('click', () => inputSNum(n));
+    numpad.appendChild(btn);
+  }
+}
+
+function selectSCell(idx) {
+  if (sGiven[idx]) {
+    sSelected = idx;
+    renderSudoku();
+    return;
+  }
+  sSelected = idx;
+  renderSudoku();
+}
+
+function inputSNum(n) {
+  if (sSelected === -1 || sGiven[sSelected]) return;
+  if (sBoard[sSelected] === n) {
+    // Deseleziona stesso numero = cancella
+    sBoard[sSelected] = 0;
+  } else {
+    if (n !== sSolution[sSelected]) {
+      sErrors++;
+      document.getElementById('s-errors').textContent = `❌ ${sErrors}`;
+    }
+    sBoard[sSelected] = n;
+  }
+  renderSudoku();
+  checkSudokuWin();
+}
+
+function checkSudokuWin() {
+  if (sBoard.every((v, i) => v === sSolution[i])) {
+    stopSudokuTimer();
+    const m = Math.floor(sSeconds / 60);
+    const s = sSeconds % 60;
+    const timeStr = m > 0 ? `${m} min ${s} sec` : `${s} secondi`;
+    document.getElementById('s-win-time').textContent =
+      `Completato in ${timeStr} con ${sErrors} error${sErrors === 1 ? 'e' : 'i'}`;
+    // Flash celle
+    document.querySelectorAll('.s-cell').forEach((c,i) => {
+      setTimeout(() => c.classList.add('complete-flash'), i * 5);
+    });
+    setTimeout(() => {
+      document.getElementById('sudoku-win').classList.add('show');
+    }, 500);
+  }
+}
+
+function sudokuHint() {
+  // Trova una cella vuota a caso e riempila
+  const empty = [];
+  for (let i = 0; i < 81; i++) {
+    if (!sGiven[i] && sBoard[i] === 0) empty.push(i);
+  }
+  if (empty.length === 0) return;
+  const idx = empty[Math.floor(Math.random() * empty.length)];
+  sBoard[idx] = sSolution[idx];
+  sSelected = idx;
+  renderSudoku();
+  checkSudokuWin();
+}
+
+function sudokuSolve() {
+  if (!confirm('Vuoi vedere la soluzione completa?')) return;
+  stopSudokuTimer();
+  for (let i = 0; i < 81; i++) sBoard[i] = sSolution[i];
+  sSelected = -1;
+  renderSudoku();
+}
+
+// Timer sudoku
+function startSudokuTimer() {
+  sTimer = setInterval(() => {
+    sSeconds++;
+    updateSTimerDisplay();
+  }, 1000);
+}
+
+function stopSudokuTimer() {
+  if (sTimer) { clearInterval(sTimer); sTimer = null; }
+}
+
+function updateSTimerDisplay() {
+  const m = Math.floor(sSeconds / 60);
+  const s = sSeconds % 60;
+  const el = document.getElementById('s-timer');
+  if (el) el.textContent = `${m}:${String(s).padStart(2,'0')}`;
+}
+
+// Swipe su mobile per inserire numeri
+(function() {
+  let tx = 0, ty = 0;
+  document.addEventListener('touchstart', e => {
+    const grid = document.getElementById('sudoku-grid');
+    if (!grid || !grid.contains(e.target)) return;
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const grid = document.getElementById('sudoku-grid');
+    if (!grid || !grid.contains(e.target)) return;
+  }, { passive: true });
+})();
 
 
 // ══ PERCORSO COMPLETO ══
