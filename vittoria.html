@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>È fatta.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #c9a96e;
+  --gold2: #f0d090;
+  --dark: #0a0806;
+  --cream: #f5f0e8;
+  --red-seal: #8b1a1a;
+}
+
+html, body {
+  width: 100%; min-height: 100vh;
+  background: var(--dark);
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+}
+
+/* ── CANVAS CORIANDOLI ── */
+#canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── SFONDO TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,169,110,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 100%, rgba(139,26,26,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201,169,110,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Noise grain */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LAYOUT ── */
+main {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+/* ── SIGILLO / TIMBRO ── */
+.seal-wrap {
+  position: relative;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: sealDrop 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+
+@keyframes sealDrop {
+  0%   { opacity: 0; transform: scale(2.5) rotate(-15deg); }
+  60%  { opacity: 1; transform: scale(0.92) rotate(3deg); }
+  80%  { transform: scale(1.04) rotate(-1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.seal {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  background: radial-gradient(circle at 40% 35%, rgba(201,169,110,0.15), transparent 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(201,169,110,0.3),
+    0 0 40px rgba(201,169,110,0.15),
+    inset 0 0 30px rgba(0,0,0,0.4);
+}
+
+.seal-inner {
+  font-size: 48px;
+  line-height: 1;
+  animation: sealPulse 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes sealPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(201,169,110,0.4)); }
+  50%       { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(201,169,110,0.7)); }
+}
+
+.seal-ring-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 108px;
+  height: 108px;
+}
+
+/* ── DECREE TOP LINE ── */
+.decree-top {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.5);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1.4s forwards;
+}
+
+/* ── TITOLO ── */
+.main-title {
+  font-size: clamp(52px, 12vw, 100px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  color: var(--cream);
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) 1.6s forwards;
+}
+
+.main-title em {
+  font-style: italic;
+  color: var(--gold);
+  display: block;
+}
+
+/* ── SOTTOTITOLO IRONICO ── */
+.subtitle {
+  font-size: clamp(16px, 3vw, 22px);
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(245,240,232,0.6);
+  margin-bottom: 48px;
+  max-width: 580px;
+  line-height: 1.5;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2s forwards;
+}
+
+/* ── DIVISORE ── */
+.divider {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 48px;
+  opacity: 0;
+  animation: fadeIn 1s ease 2.2s forwards;
+}
+
+/* ── DECRETO FORMALE ── */
+.decree {
+  max-width: 640px;
+  width: 100%;
+  background: rgba(201,169,110,0.04);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 4px;
+  padding: 36px 40px;
+  position: relative;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.4s forwards;
+}
+
+.decree::before, .decree::after {
+  content: '❧';
+  position: absolute;
+  color: var(--gold);
+  font-size: 18px;
+  opacity: 0.4;
+}
+.decree::before { top: 12px; left: 16px; }
+.decree::after  { bottom: 12px; right: 16px; transform: rotate(180deg); }
+
+.decree-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.5);
+  margin-bottom: 20px;
+}
+
+.decree-text {
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.8;
+  color: rgba(245,240,232,0.85);
+  font-weight: 300;
+}
+
+.decree-text strong {
+  font-weight: 600;
+  color: var(--cream);
+}
+
+.decree-text .highlight {
+  color: var(--gold);
+  font-style: italic;
+}
+
+/* ── STATS IRONICHE ── */
+.stats-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.8s forwards;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 20px 24px;
+  border: 1px solid rgba(201,169,110,0.12);
+  border-radius: 4px;
+  background: rgba(201,169,110,0.03);
+  min-width: 120px;
+  transition: all 0.3s;
+}
+
+.stat-item:hover {
+  border-color: rgba(201,169,110,0.35);
+  background: rgba(201,169,110,0.07);
+  transform: translateY(-3px);
+}
+
+.stat-num {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.4);
+}
+
+/* ── CITAZIONE ── */
+.quote-wrap {
+  max-width: 500px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 3.2s forwards;
+}
+
+.quote {
+  font-size: clamp(18px, 3vw, 24px);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(245,240,232,0.7);
+  margin-bottom: 10px;
+}
+
+.quote-author {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(201,169,110,0.5);
+  text-transform: uppercase;
+}
+
+/* ── BOTTONE FESTA ── */
+.btn-party {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--dark);
+  border: none;
+  padding: 18px 48px;
+  border-radius: 2px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 3.5s forwards;
+  box-shadow: 0 4px 24px rgba(201,169,110,0.25);
+  margin-bottom: 16px;
+}
+
+.btn-party:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(201,169,110,0.4);
+}
+
+.btn-party:active { transform: translateY(0); }
+
+.btn-small {
+  background: none;
+  border: 1px solid rgba(201,169,110,0.2);
+  color: rgba(245,240,232,0.4);
+  padding: 10px 24px;
+  border-radius: 2px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 3.8s forwards;
+  display: block;
+  margin: 0 auto;
+}
+
+.btn-small:hover { color: var(--gold); border-color: rgba(201,169,110,0.5); }
+
+/* ── FIRMA / FOOTER ── */
+.footer-decree {
+  margin-top: 60px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(201,169,110,0.1);
+  opacity: 0;
+  animation: fadeIn 1s ease 4s forwards;
+  width: 100%;
+  max-width: 640px;
+}
+
+.footer-line {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: rgba(201,169,110,0.25);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* ── ANIMAZIONI BASE ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── STELLE ANIMATE ── */
+.star {
+  position: fixed;
+  pointer-events: none;
+  font-size: 16px;
+  animation: starFloat linear infinite;
+  opacity: 0;
+  z-index: 1;
+}
+
+@keyframes starFloat {
+  0%   { opacity: 0; transform: translateY(0) rotate(0deg); }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { opacity: 0; transform: translateY(-100vh) rotate(720deg); }
+}
+
+/* ── FLASH VITTORIA ── */
+.victory-flash {
+  position: fixed;
+  inset: 0;
+  background: var(--gold);
+  z-index: 200;
+  pointer-events: none;
+  animation: flashOut 0.8s ease forwards;
+}
+
+@keyframes flashOut {
+  0%   { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+/* ── COUNTER ANIMATO ── */
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.stat-num { animation: countUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<main>
+  <!-- Sigillo -->
+  <div class="seal-wrap">
+    <div class="seal">
+      <div class="seal-inner">⚖️</div>
+    </div>
+  </div>
+
+  <p class="decree-top">Repubblica Italiana · Ministero della Giustizia · Anno Domini MMXXVI</p>
+
+  <h1 class="main-title">
+    Ce l'hai<br>
+    <em>fatta.</em>
+  </h1>
+
+  <p class="subtitle">
+    Dopo 297 domande situazionali, decine di Magistrati virtuali,
+    almeno un'udienza fantasma e una quantità imprecisata di caffè —
+    il Processo ti ha scelto.
+  </p>
+
+  <div class="divider"></div>
+
+  <!-- Decreto formale -->
+  <div class="decree">
+    <p class="decree-label">Atto di proclamazione</p>
+    <p class="decree-text">
+      Si certifica che il/la sottoscritto/a, avendo superato con <strong>merito insindacabile</strong>
+      la procedura di stabilizzazione PNRR 2026 per l'accesso al ruolo di
+      <span class="highlight">Addetto all'Ufficio per il Processo</span>,
+      è da oggi e per sempre autorizzato/a a <strong>predisporre schede preparatorie</strong>,
+      <strong>calendarizzare udienze</strong> e rispondere alle email del Magistrato
+      <em>con la dovuta tempestività</em>.<br><br>
+      Il presente atto non è impugnabile, non è soggetto a mediazione obbligatoria
+      e non richiede integrazione del contraddittorio.
+    </p>
+  </div>
+
+  <!-- Stats ironiche -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-num" id="cnt1">0</div>
+      <div class="stat-label">Domande<br>sopravvissute</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt2">0</div>
+      <div class="stat-label">Magistrati<br>accontentati</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt3">0</div>
+      <div class="stat-label">Fascicoli<br>completati</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt4">0</div>
+      <div class="stat-label">Udienze<br>calendarizzate</div>
+    </div>
+  </div>
+
+  <!-- Citazione -->
+  <div class="quote-wrap">
+    <p class="quote">
+      "La risposta efficace analizza, poi fa, poi verifica,
+      poi segnala al Magistrato, poi si rende disponibile.
+      Come sempre."
+    </p>
+    <p class="quote-author">— Ogni bozza di sentenza, mai</p>
+  </div>
+
+  <!-- CTA -->
+  <button class="btn-party" onclick="triggerCelebration()">
+    ✦ &nbsp; Festeggia ancora &nbsp; ✦
+  </button>
+
+  <button class="btn-small" onclick="window.location.href='index.html'">
+    ← Torna al quiz
+  </button>
+
+  <!-- Footer -->
+  <div class="footer-decree">
+    <p class="footer-line">Stabilizzazione PNRR 2026 · Addetti UPP · Firmato con autentica digitale</p>
+    <p class="footer-line">Visto: il Dirigente · Approvato: il Presidente di Sezione · Archiviato: in tempo utile</p>
+  </div>
+</main>
+
+<script>
+// ── CORIANDOLI ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const COLORS = ['#c9a96e','#f0d090','#e05252','#4caf84','#5c7a4e','#e8943a','#fffdf8','#8b1a1a'];
+
+class Particle {
+  constructor(x, y, burst = false) {
+    this.x = x ?? Math.random() * canvas.width;
+    this.y = y ?? -10;
+    this.size = Math.random() * 8 + 4;
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.speedX = (Math.random() - 0.5) * (burst ? 14 : 3);
+    this.speedY = burst ? (Math.random() * -12 - 4) : (Math.random() * 4 + 2);
+    this.gravity = 0.25;
+    this.rotation = Math.random() * 360;
+    this.rotSpeed = (Math.random() - 0.5) * 8;
+    this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+    this.alpha = 1;
+    this.burst = burst;
+    this.life = burst ? 180 : 300;
+    this.age = 0;
+  }
+
+  update() {
+    this.speedY += this.gravity;
+    this.speedX *= 0.99;
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.rotation += this.rotSpeed;
+    this.age++;
+    if (this.age > this.life * 0.7) {
+      this.alpha = 1 - (this.age - this.life * 0.7) / (this.life * 0.3);
+    }
+    return this.age < this.life && this.y < canvas.height + 20;
+  }
+
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rotation * Math.PI / 180);
+    ctx.fillStyle = this.color;
+    if (this.shape === 'rect') {
+      ctx.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+let particles = [];
+let animId = null;
+let raining = false;
+
+function startRain() {
+  raining = true;
+}
+
+function stopRain() {
+  raining = false;
+}
+
+function burst(x, y) {
+  for (let i = 0; i < 80; i++) {
+    particles.push(new Particle(x, y, true));
+  }
+}
+
+function animLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (raining && Math.random() < 0.4) {
+    particles.push(new Particle());
+  }
+
+  particles = particles.filter(p => {
+    p.draw();
+    return p.update();
+  });
+
+  animId = requestAnimationFrame(animLoop);
+}
+
+// ── STELLE FLOTTANTI ──
+function createStars() {
+  const symbols = ['✦','✧','⋆','★','✶','❋','✿','⚖'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = (50 + Math.random() * 60) + 'vh';
+    el.style.animationDuration = (8 + Math.random() * 16) + 's';
+    el.style.animationDelay = (Math.random() * 10) + 's';
+    el.style.fontSize = (10 + Math.random() * 14) + 'px';
+    el.style.color = Math.random() > 0.5 ? '#c9a96e' : 'rgba(245,240,232,0.3)';
+    document.body.appendChild(el);
+  }
+}
+
+// ── COUNTER ANIMATO ──
+function animateCounter(id, target, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(interval);
+    }, 30);
+  }, delay);
+}
+
+// ── CELEBRAZIONE ──
+function triggerCelebration() {
+  // Flash
+  const flash = document.createElement('div');
+  flash.className = 'victory-flash';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 800);
+
+  // Burst da vari punti
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      burst(
+        canvas.width * (0.15 + Math.random() * 0.7),
+        canvas.height * (0.1 + Math.random() * 0.4)
+      );
+    }, i * 150);
+  }
+
+  startRain();
+  setTimeout(stopRain, 4000);
+}
+
+// ── INIT ──
+createStars();
+animLoop();
+
+// Pioggia iniziale di benvenuto
+setTimeout(() => {
+  startRain();
+  setTimeout(stopRain, 3000);
+
+  // Burst di benvenuto
+  setTimeout(() => {
+    burst(canvas.width * 0.25, canvas.height * 0.3);
+    burst(canvas.width * 0.75, canvas.height * 0.3);
+    burst(canvas.width * 0.5, canvas.height * 0.2);
+  }, 400);
+}, 1000);
+
+// Counter
+animateCounter('cnt1', 297, 2800);
+animateCounter('cnt2', 3,   3000);
+animateCounter('cnt3', 9,   3100);
+animateCounter('cnt4', 47,  3200);
+
+// Click ovunque per mini burst
+document.addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON') return;
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => burst(e.clientX, e.clientY), i * 80);
+  }
+});
+</script>
+</body>
+</html>
